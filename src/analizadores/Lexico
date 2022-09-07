@@ -1,0 +1,100 @@
+package analizadores;
+
+import java_cup.runtime.*;
+
+%%
+%class Lexico
+%public
+%line
+%char
+%cup
+%unicode
+%ignorecase
+%init{
+    yyline = 1;
+    yychar = 1;
+%init}
+
+LineTerminator = \r|\n|\r\n
+InputCharacter = [^\r\n]+
+WhiteSpace = {LineTerminator} | [ \r ,\t\f]+
+L = [a-zA-Z_]+
+D = [0-9]+
+DD = [0-9]+("."[ |0-9]+)?
+ASSIGN = ("-"[">"])|"="
+
+Comment = {TraditionalComment} | {EndOfLineComment} | {DocumentationComment}
+TraditionalComment   = "/*" [^*] ~"*/" | "/*" "*"+ "/"
+// Comment can be the last line of the file, without line terminator.
+EndOfLineComment     = "//" {InputCharacter}* {LineTerminator}?
+DocumentationComment = "/**" {CommentContent} "*"+ "/"
+CommentContent       = ( [^*] | \*+ [^/*] )*
+
+%%
+
+{WhiteSpace}   { /* ignore */ }
+
+"Evaluar" { return new Symbol(sym.REVALUAR,yyline,yychar,yytext());}
+
+"Número" { return new Symbol(sym.INTVALUE,yyline,yychar,yytext());}
+"Cadena" { return new Symbol(sym.STRING,yyline,yychar,yytext());}
+"Boolean" { return new Symbol(sym.BOLEAN,yyline,yychar,yytext());}
+"Carácter" { return new Symbol(sym.CHAR,yyline,yychar,yytext());}
+
+"+" { return new Symbol(sym.SUMA,yyline,yychar,yytext()); }
+"-" { return new Symbol(sym.RESTA,yyline,yychar,yytext()); }
+"*" { return new Symbol(sym.MULT,yyline,yychar,yytext()); }
+"/" { return new Symbol(sym.DIVD,yyline,yychar,yytext()); }
+"potencia" { return new Symbol(sym.POTENCIA,yyline,yychar,yytext()); }
+"mod" { return new Symbol(sym.MODULO,yyline,yychar,yytext()); }
+"(" { return new Symbol(sym.PARENABRE,yyline,yychar,yytext()); }
+")" { return new Symbol(sym.PARENCIERRA,yyline,yychar,yytext()); }
+"," { return new Symbol(sym.COMA,yyline,yychar,yytext()); }
+";" { return new Symbol(sym.PUNTOCOMA,yyline,yychar,yytext()); }
+"[" { return new Symbol(sym.CORCABRE,yyline,yychar,yytext()); }
+"]" { return new Symbol(sym.CORCCIERRA,yyline,yychar,yytext()); }
+
+
+"inicio" { return new Symbol(sym.INICIO,yyline,yychar,yytext()); }
+"fin"  { return new Symbol(sym.FIN,yyline,yychar,yytext()); }
+
+{ASSIGN}   {return new Symbol(sym.ASSIGN,yyline,yychar,yytext());}
+
+("_"{L}({L}|{D})*"_") {return new Symbol(sym.VARIABLE,yyline,yychar,yytext());}
+"ingresar" { return new Symbol(sym.INGRESAR,yyline,yychar,yytext()); }
+"como" { return new Symbol(sym.COMO,yyline,yychar,yytext()); }
+"con_valor" { return new Symbol(sym.CON_VALOR,yyline,yychar,yytext()); }
+
+"si" { return new Symbol(sym.IF,yyline,yychar,yytext()); }
+"entonces" { return new Symbol(sym.SO,yyline,yychar,yytext()); }
+"o_si" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"de_lo_contrario" { return new Symbol(sym.ELSE,yyline,yychar,yytext()); }
+"fin_si" { return new Symbol(sym.IFCLOSE,yyline,yychar,yytext()); }
+
+"segun" { return new Symbol(sym.SWITCH,yyline,yychar,yytext()); }
+"hacer" { return new Symbol(sym.DO,yyline,yychar,yytext()); }
+"fin_segun" { return new Symbol(sym.SWITCHCLOSE,yyline,yychar,yytext()); }
+
+"para" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"hasta" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"fin_para" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"con incremental" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+
+"mientras" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"fin_mientras" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+
+"repetir" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"hasta_que" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+
+"retornar" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+
+"metodo" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"fin_metodo" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"funcion" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"fin_funcion" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"con_parametros" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"ejecutar" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"imprimir" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"imprimir_nl" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+
+{Comment}   { /* ignore */ }
