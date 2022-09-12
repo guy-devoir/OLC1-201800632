@@ -15,9 +15,6 @@ import java_cup.runtime.*;
     yychar = 1;
 %init}
 
-LineTerminator = \r|\n|\r\n
-InputCharacter = [^\r\n]+
-WhiteSpace = {LineTerminator} | [ \r ,\t\f]+
 L = [a-zA-Z_]+
 D = [0-9]+
 DD = [0-9]+("."[ |0-9]+)?
@@ -30,15 +27,29 @@ EndOfLineComment     = "//" {InputCharacter}* {LineTerminator}?
 DocumentationComment = "/**" {CommentContent} "*"+ "/"
 CommentContent       = ( [^*] | \*+ [^/*] )*
 
+LineTerminator = \r|\n|\r\n
+WhiteSpace = {LineTerminator} | [ \r ,\t\f]+
+
+String_ =  ("\""{L}|{D}|{WhiteSpace}({L}|{D}|{WhiteSpace})"\"") | ("\'"{L}|{D}|{WhiteSpace}({L}|{D}|{WhiteSpace})"\'")
+Character = ("\""([a-zA-Z_]|[0-9]|{whitespace})"\"")|("\'"([a-zA-Z_]|[0-9]|{whitespace})"\'")|(("\""|"\'")"$""{"{D}"}"("\""|"\'"))
+
 %%
 
 {WhiteSpace}   { /* ignore */ }
 
 "Evaluar" { return new Symbol(sym.REVALUAR,yyline,yychar,yytext());}
+{D} { return new Symbol(sym.NUMERO,yyline,yychar,yytext()); }
+{DD} { return new Symbol(sym.DECIMAL,yyline,yychar,yytext()); }
+{String_} { return new Symbol(sym.STRING_CONTENT,yyline,yychar,yytext()); }
+{Character} { return new Symbol(sym.CHAR_CONTENT,yyline,yychar,yytext()); }
 
 "Número" { return new Symbol(sym.INTVALUE,yyline,yychar,yytext());}
 "Cadena" { return new Symbol(sym.STRING,yyline,yychar,yytext());}
-"Boolean" { return new Symbol(sym.BOLEAN,yyline,yychar,yytext());}
+
+"Boolean" { return new Symbol(sym.BOOLEAN,yyline,yychar,yytext());}
+"verdadero"{ return new Symbol(sym.TRUE,yyline,yychar,yytext());}
+"falso" { return new Symbol(sym.FALSE,yyline,yychar,yytext());}
+
 "Carácter" { return new Symbol(sym.CHAR,yyline,yychar,yytext());}
 
 "+" { return new Symbol(sym.SUMA,yyline,yychar,yytext()); }
@@ -49,18 +60,25 @@ CommentContent       = ( [^*] | \*+ [^/*] )*
 "mod" { return new Symbol(sym.MODULO,yyline,yychar,yytext()); }
 "(" { return new Symbol(sym.PARENABRE,yyline,yychar,yytext()); }
 ")" { return new Symbol(sym.PARENCIERRA,yyline,yychar,yytext()); }
+"<" { return new Symbol(sym.MENORQUE,yyline,yychar,yytext()); }
+">" { return new Symbol(sym.MAYORQUE,yyline,yychar,yytext()); }
+"=<" { return new Symbol(sym.MENORIGUAL,yyline,yychar,yytext()); }
+"menor_o_igual" { return new Symbol(sym.MENORIGUAL,yyline,yychar,yytext()); }
+"=>" { return new Symbol(sym.MAYORIGUAL,yyline,yychar,yytext()); }
+"Mayor_o_igual" { return new Symbol(sym.MAYORIGUAL,yyline,yychar,yytext()); }
+"es_igual" { return new Symbol(sym.ESIGUAL,yyline,yychar,yytext()); }
+"es_difeErente" { return new Symbol(sym.NOESIGUAL,yyline,yychar,yytext()); }
 "," { return new Symbol(sym.COMA,yyline,yychar,yytext()); }
 ";" { return new Symbol(sym.PUNTOCOMA,yyline,yychar,yytext()); }
 "[" { return new Symbol(sym.CORCABRE,yyline,yychar,yytext()); }
 "]" { return new Symbol(sym.CORCCIERRA,yyline,yychar,yytext()); }
-
 
 "inicio" { return new Symbol(sym.INICIO,yyline,yychar,yytext()); }
 "fin"  { return new Symbol(sym.FIN,yyline,yychar,yytext()); }
 
 {ASSIGN}   {return new Symbol(sym.ASSIGN,yyline,yychar,yytext());}
 
-("_"{L}({L}|{D})*"_") {return new Symbol(sym.VARIABLE,yyline,yychar,yytext());}
+{"_"{L}({L}|{D})*"_"} {return new Symbol(sym.IDENTIFICADOR,yyline,yychar,yytext());}
 "ingresar" { return new Symbol(sym.INGRESAR,yyline,yychar,yytext()); }
 "como" { return new Symbol(sym.COMO,yyline,yychar,yytext()); }
 "con_valor" { return new Symbol(sym.CON_VALOR,yyline,yychar,yytext()); }
@@ -75,26 +93,32 @@ CommentContent       = ( [^*] | \*+ [^/*] )*
 "hacer" { return new Symbol(sym.DO,yyline,yychar,yytext()); }
 "fin_segun" { return new Symbol(sym.SWITCHCLOSE,yyline,yychar,yytext()); }
 
-"para" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
-"hasta" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
-"fin_para" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
-"con incremental" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"para" { return new Symbol(sym.FOR,yyline,yychar,yytext()); }
+"hasta" { return new Symbol(sym.UNTIL,yyline,yychar,yytext()); }
+"fin_para" { return new Symbol(sym.FORCLOSE,yyline,yychar,yytext()); }
+"con incremental" { return new Symbol(sym.INCREMENT,yyline,yychar,yytext()); }
 
-"mientras" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
-"fin_mientras" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"mientras" { return new Symbol(sym.WHILE,yyline,yychar,yytext()); }
+"fin_mientras" { return new Symbol(sym.WHILECLOSE,yyline,yychar,yytext()); }
 
-"repetir" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
-"hasta_que" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"repetir" { return new Symbol(sym.REPEAT,yyline,yychar,yytext()); }
+"hasta_que" { return new Symbol(sym.UNTIL_CONDITION,yyline,yychar,yytext()); }
 
-"retornar" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"retornar" { return new Symbol(sym.RETURN,yyline,yychar,yytext()); }
 
-"metodo" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
-"fin_metodo" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
-"funcion" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
-"fin_funcion" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
-"con_parametros" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
-"ejecutar" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
-"imprimir" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
-"imprimir_nl" { return new Symbol(sym.ELIF,yyline,yychar,yytext()); }
+"metodo" { return new Symbol(sym.METOD,yyline,yychar,yytext()); }
+"fin_metodo" { return new Symbol(sym.METODCLOSE,yyline,yychar,yytext()); }
+"funcion" { return new Symbol(sym.FUN,yyline,yychar,yytext()); }
+"fin_funcion" { return new Symbol(sym.FUNCLOSE,yyline,yychar,yytext()); }
+"con_parametros" { return new Symbol(sym.PARAMETERS,yyline,yychar,yytext()); }
+"ejecutar" { return new Symbol(sym.EXECUTE,yyline,yychar,yytext()); }
+"imprimir" { return new Symbol(sym.PRINT,yyline,yychar,yytext()); }
+"imprimir_nl" { return new Symbol(sym.PRINTLN,yyline,yychar,yytext()); }
 
+{whitespace} {}
+\n {yychar=1;}
 {Comment}   { /* ignore */ }
+
+. { 
+    System.out.println(yytext() + "Error Lexico en linea: " + yyline + " y columna: " + yychar);
+}

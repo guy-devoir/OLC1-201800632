@@ -15,6 +15,7 @@ public class Interface extends javax.swing.JFrame {
      * Creates new form Interface
      */
     public Interface() {
+        boolean s= true;
         initComponents();
     }
 

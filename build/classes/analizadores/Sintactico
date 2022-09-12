@@ -1,0 +1,80 @@
+package analizadores;
+
+import java_cup.runtime.*;
+
+parser code {:
+    public void syntax_error(Symbol s){
+        System.out.println("Error linea: " + s.left + "columna: " +s.right+"value:" s.value());                   
+    }
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.exception{
+        System.out.println("Error linea irrecuperable: " + s.left + "columna: " +s.right+"value:" s.value());                
+    }
+:}
+
+terminal String REVALUAR, NUMERO, DECIMAL, INTVALUE, STRING, BOOLEAN, CHAR, UMENOS;
+terminal String SUMA, RESTA, MULT, DIVD, POTENCIA, MODULO, PARENABRE, PARENCIERRA;
+terminal String COMA, PUNTOCOMA, CORCABRE, CORCCIERRA, INICIO, FIN, ASSIGN;
+terminal String IDENTIFICADOR, INGRESAR, COMO, CON_VALOR, IF, SO, ELIF, ELSE, IFCLOSE, SWITCH, DO, SWITCHCLOSE;
+terminal String FOR, UNTIL, FORCLOSE, INCREMENT, WHILE, WHILECLOSE, REPEAT, UNTIL_CONDITION, RETURN;
+terminal String METOD, METODCLOSE, FUN, FUNCLOSE, PARAMETERS, EXECUTE, PRINT, PRINTLN, UMENOS;
+terminal String TRUE, FALSE, STRING_CONTENT, CHAR_CONTENT, MENORQUE, MAYORQUE, MENORIGUAL, MAYORIGUAL, ESIGUAL, NOESIGUAL;
+
+non terminal init;
+non terminal instrucciones;
+non terminal instruccion;
+non terminal expresion;
+non terminal D_Tipo;
+non terminal Double math;
+
+precedence left MAS,MENOS, POTENCIA, MODULO;
+precedence left POR,DIVIDIDO;
+precedence left MENORQUE, MAYORQUE;
+precedence right UMENOS; 
+
+start with init;
+
+init ::= INICIO instrucciones FIN
+;
+
+instrucciones ::=  instruccion instrucciones 
+| instruccion 
+| error instrucciones {}
+;
+
+instruccion ::= expresion 
+| math
+;
+
+expresion ::= INGRESAR id COMO D_Tipo PUNTOCOMA
+;
+
+id ::= IDENTIFICADOR
+    | IDENTIFICADOR, id
+;
+
+D_Tipo ::= INTVALUE CON_VALOR math
+    | STRING CON_VALOR STRING_CONTENT
+    | BOOLEAN CON_VALOR bool_test
+    | CHAR CON_VALOR CHAR_CONTENT
+;
+
+bool_test ::= TRUE 
+    | FALSE
+    | math MENORQUE math
+    | math MAYORQUE math
+    | math MENORIGUAL math
+    | math MAYORIGUAL math
+;
+
+math  ::= 
+    MENOS math:a             {:RESULT=a*-1;:}%prec UMENOS     
+ |  math:a SUMA   math:b     {:RESULT=a+b;:}
+ |  math:a RESTA  math:b     {:RESULT=a-b;:}
+ |  math:a MULT   math:b     {:RESULT=a*b;:}
+ |  math:a DIVD   math:b     {:RESULT=a/b;:}
+ |  math:a POTENCIA CORCABRE math:b CORCCIERRA {:RESULT= Math.pow(a, b);:}
+ |  math:a MODULO math:b {:RESULT=a%b;:}
+ |  NUMERO:a                               {:RESULT=new Double(a);:}
+ |  DECIMAL:a                              {:RESULT=new Double(a);:}
+ |  PARENABRE math:a PARENCIERRA              {:RESULT=new Double(a);:}
+;
