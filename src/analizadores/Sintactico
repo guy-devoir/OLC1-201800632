@@ -3,6 +3,8 @@ package analizadores;
 import java_cup.runtime.*;
 
 parser code {:
+    
+
     public void syntax_error(Symbol s){
         System.out.println("Error linea: " + s.left + "columna: " +s.right+"value:" s.value());                   
     }
@@ -17,12 +19,24 @@ terminal String COMA, PUNTOCOMA, CORCABRE, CORCCIERRA, INICIO, FIN, ASSIGN;
 terminal String IDENTIFICADOR, INGRESAR, COMO, CON_VALOR, IF, SO, ELIF, ELSE, IFCLOSE, SWITCH, DO, SWITCHCLOSE;
 terminal String FOR, UNTIL, FORCLOSE, INCREMENT, WHILE, WHILECLOSE, REPEAT, UNTIL_CONDITION, RETURN;
 terminal String METOD, METODCLOSE, FUN, FUNCLOSE, PARAMETERS, EXECUTE, PRINT, PRINTLN, UMENOS;
-terminal String TRUE, FALSE, STRING_CONTENT, CHAR_CONTENT, MENORQUE, MAYORQUE, MENORIGUAL, MAYORIGUAL, ESIGUAL, NOESIGUAL;
+terminal String TRUE, FALSE, STRING_CONTENT, CHAR_CONTENT, MENORQUE, MAYORQUE, MENORIGUAL, MAYORIGUAL, ESIGUAL, NOESIGUAL, INVERSE;
+terminal String OPENCASE, CLOSECASE;
 
 non terminal init;
 non terminal instrucciones;
 non terminal instruccion;
-non terminal expresion;
+non terminal printables;
+non terminal assignables;
+non terminal id;
+non terminal only_type;
+non terminal logic;
+non terminal operators;
+non terminal elif_statements;
+non terminal else_statements;
+non terminal bool_test;
+non terminal s_cases;
+non terminal incpp;
+non terminal args;
 non terminal D_Tipo;
 non terminal Double math;
 
@@ -41,21 +55,92 @@ instrucciones ::=  instruccion instrucciones
 | error instrucciones {}
 ;
 
-instruccion ::= expresion 
-| math
+instruccion ::= INGRESAR id COMO D_Tipo PUNTOCOMA
+    | id ASSIGN assignables PUNTOCOMA
+    | PRINTLN printables PUNTOCOMA
+    | PRINT printables PUNTOCOMA
+    | IF logic SO instrucciones elif_statements else_statements IFCLOSE
+    | WHILE logic DO instrucciones WHILECLOSE
+    | WHILE INVERSE logic DO  instrucciones WHILECLOSE
+    | SWITCH IDENTIFICADOR DO s_cases else_statements SWITCHCLOSE 
+    | FOR IDENTIFICADOR ASSIGN math UNTIL logic incpp DO instrucciones FORCLOSE
+    | FOR IDENTIFICADOR ASSIGN logic UNTIL logic incpp DO instrucciones FORCLOSE
+    | REPEAT instrucciones UNTIL_CONDITION logic
+    | METOD IDENTIFICADOR instrucciones METODCLOSE
+    | FUN IDENTIFICADOR instrucciones RETURN logic PUNTOCOMA FUNCLOSE
+    | METOD IDENTIFICADOR PARAMETERS logic instrucciones METODCLOSE
+    | FUN IDENTIFICADOR PARAMETERS logic instrucciones RETURN logic PUNTOCOMA FUNCLOSE
+    | EXECUTE IDENTIFICADOR  PUNTOCOMA
+    | empty
 ;
 
-expresion ::= INGRESAR id COMO D_Tipo PUNTOCOMA
+incpp ::= INCREMENT logic
+    | empty
 ;
 
-id ::= IDENTIFICADOR
-    | IDENTIFICADOR, id
+pars ::= pars COMA pars
+    | only_type IDENTIFICADOR 
+;
+
+args ::= PARENABRE args PARENCIERRA
+    | args COMA args
+    | math
+    | STRING_CONTENT
+    | CHAR_CONTENT
+    | IDENTIFICADOR
+    | TRUE
+    | FALSE
+    | logic
+;
+
+s_cases ::= OPENCASE math CLOSECASE SO instrucciones s_cases 
+    | OPENCASE STRING_CONTENT CLOSECASE SO instrucciones s_cases 
+    | OPENCASE CHAR_CONTENT CLOSECASE SO instrucciones s_cases 
+    | OPENCASE IDENTIFICADOR CLOSECASE SO instrucciones s_cases 
+    | OPENCASE bool_test CLOSECASE SO instrucciones s_cases 
+    | empty
+;
+
+elif_statements ::= ELIF logic instrucciones elif_statements
+    | ELIF logic SO instrucciones elif_statements
+    | empty
+;
+
+else_statements ::= ELSE instrucciones
+    | empty
+;
+
+printables ::= PARENABRE printables PARENCIERRA
+    | math
+    | STRING_CONTENT
+    | CHAR_CONTENT
+    | bool_test
+    | id
+;
+
+assignables ::= math
+    | logic
+    | STRING_CONTENT
+    | CHAR_CONTENT
+    | bool_test
+;
+
+id ::= IDENTIFICADOR COMA id
+    | IDENTIFICADOR
+    | PARENABRE id PARENCIERRA
 ;
 
 D_Tipo ::= INTVALUE CON_VALOR math
     | STRING CON_VALOR STRING_CONTENT
     | BOOLEAN CON_VALOR bool_test
     | CHAR CON_VALOR CHAR_CONTENT
+    | only_type CON_VALOR logic
+;
+
+only_type ::= INTVALUE
+    | STRING
+    | BOOLEAN
+    | CHAR
 ;
 
 bool_test ::= TRUE 
@@ -64,6 +149,22 @@ bool_test ::= TRUE
     | math MAYORQUE math
     | math MENORIGUAL math
     | math MAYORIGUAL math
+    | math ESIGUAL math
+    | math NOESIGUAL math
+;
+
+logic ::= PARENABRE logic:a PARENCIERRA {:RESULT=a;:}
+    | logic:a operators logic:b
+    | IDENTIFICADOR
+    | math
+;
+
+operators::= MENORQUE
+    | MAYORQUE 
+    | MENORIGUAL 
+    | MAYORIGUAL 
+    | ESIGUAL 
+    | NOESIGUAL
 ;
 
 math  ::= 

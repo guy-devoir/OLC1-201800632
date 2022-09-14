@@ -33,6 +33,10 @@ WhiteSpace = {LineTerminator} | [ \r ,\t\f]+
 String_ =  ("\""{L}|{D}|{WhiteSpace}({L}|{D}|{WhiteSpace})"\"") | ("\'"{L}|{D}|{WhiteSpace}({L}|{D}|{WhiteSpace})"\'")
 Character = ("\""([a-zA-Z_]|[0-9]|{whitespace})"\"")|("\'"([a-zA-Z_]|[0-9]|{whitespace})"\'")|(("\""|"\'")"$""{"{D}"}"("\""|"\'"))
 
+
+OpenCase = "¿"|"¡"
+CloseCase = "?"|"!"
+
 %%
 
 {WhiteSpace}   { /* ignore */ }
@@ -47,10 +51,12 @@ Character = ("\""([a-zA-Z_]|[0-9]|{whitespace})"\"")|("\'"([a-zA-Z_]|[0-9]|{whit
 "Cadena" { return new Symbol(sym.STRING,yyline,yychar,yytext());}
 
 "Boolean" { return new Symbol(sym.BOOLEAN,yyline,yychar,yytext());}
+"Booleana" { return new Symbol(sym.BOOLEAN,yyline,yychar,yytext());}
 "verdadero"{ return new Symbol(sym.TRUE,yyline,yychar,yytext());}
 "falso" { return new Symbol(sym.FALSE,yyline,yychar,yytext());}
+"not" { return new Symbol(sym.INVERSE,yyline,yychar,yytext());}
 
-"Carácter" { return new Symbol(sym.CHAR,yyline,yychar,yytext());}
+"Caracter" { return new Symbol(sym.CHAR,yyline,yychar,yytext());}
 
 "+" { return new Symbol(sym.SUMA,yyline,yychar,yytext()); }
 "-" { return new Symbol(sym.RESTA,yyline,yychar,yytext()); }
@@ -61,7 +67,9 @@ Character = ("\""([a-zA-Z_]|[0-9]|{whitespace})"\"")|("\'"([a-zA-Z_]|[0-9]|{whit
 "(" { return new Symbol(sym.PARENABRE,yyline,yychar,yytext()); }
 ")" { return new Symbol(sym.PARENCIERRA,yyline,yychar,yytext()); }
 "<" { return new Symbol(sym.MENORQUE,yyline,yychar,yytext()); }
+"menor"  { return new Symbol(sym.MENORQUE,yyline,yychar,yytext()); }
 ">" { return new Symbol(sym.MAYORQUE,yyline,yychar,yytext()); }
+"mayor" { return new Symbol(sym.MAYORQUE,yyline,yychar,yytext()); }
 "=<" { return new Symbol(sym.MENORIGUAL,yyline,yychar,yytext()); }
 "menor_o_igual" { return new Symbol(sym.MENORIGUAL,yyline,yychar,yytext()); }
 "=>" { return new Symbol(sym.MAYORIGUAL,yyline,yychar,yytext()); }
@@ -90,6 +98,8 @@ Character = ("\""([a-zA-Z_]|[0-9]|{whitespace})"\"")|("\'"([a-zA-Z_]|[0-9]|{whit
 "fin_si" { return new Symbol(sym.IFCLOSE,yyline,yychar,yytext()); }
 
 "segun" { return new Symbol(sym.SWITCH,yyline,yychar,yytext()); }
+{OpenCase} { return new Symbol(sym.OPENCASE,yyline,yychar,yytext()); }
+{CloseCase} { return new Symbol(sym.CLASECASE,yyline,yychar,yytext()); }
 "hacer" { return new Symbol(sym.DO,yyline,yychar,yytext()); }
 "fin_segun" { return new Symbol(sym.SWITCHCLOSE,yyline,yychar,yytext()); }
 
@@ -97,6 +107,7 @@ Character = ("\""([a-zA-Z_]|[0-9]|{whitespace})"\"")|("\'"([a-zA-Z_]|[0-9]|{whit
 "hasta" { return new Symbol(sym.UNTIL,yyline,yychar,yytext()); }
 "fin_para" { return new Symbol(sym.FORCLOSE,yyline,yychar,yytext()); }
 "con incremental" { return new Symbol(sym.INCREMENT,yyline,yychar,yytext()); }
+"con_incremental" { return new Symbol(sym.INCREMENT,yyline,yychar,yytext()); }
 
 "mientras" { return new Symbol(sym.WHILE,yyline,yychar,yytext()); }
 "fin_mientras" { return new Symbol(sym.WHILECLOSE,yyline,yychar,yytext()); }
