@@ -9,5 +9,4 @@ public class Proyecto1_Compiladores1 {
         Interface window = new Interface();
         window.setVisible(true);
     }
-    
 }
