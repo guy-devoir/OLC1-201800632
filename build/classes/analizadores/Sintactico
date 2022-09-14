@@ -1,28 +1,29 @@
 package analizadores;
 
 import java_cup.runtime.*;
+import java.util.LinkedList;
 
 parser code {:
-    
+    public LinkedList<String> tokens = new LinkedList<String>();
 
     public void syntax_error(Symbol s){
-        System.out.println("Error linea: " + s.left + "columna: " +s.right+"value:" s.value());                   
+        System.out.println("Error linea: " + s.left + "columna: " +s.right+"value:" + s.value);                   
     }
-    public void unrecovered_syntax_error(Symbol s) throws java.lang.exception{
-        System.out.println("Error linea irrecuperable: " + s.left + "columna: " +s.right+"value:" s.value());                
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        System.out.println("Error linea irrecuperable: " + s.left + "columna: " +s.right+"value:" + s.value);                
     }
 :}
 
-terminal String REVALUAR, NUMERO, DECIMAL, INTVALUE, STRING, BOOLEAN, CHAR, UMENOS;
+terminal String NUMERO, DECIMAL, INTVALUE, STRING, BOOLEAN, CHAR, UMENOS;
 terminal String SUMA, RESTA, MULT, DIVD, POTENCIA, MODULO, PARENABRE, PARENCIERRA;
 terminal String COMA, PUNTOCOMA, CORCABRE, CORCCIERRA, INICIO, FIN, ASSIGN;
 terminal String IDENTIFICADOR, INGRESAR, COMO, CON_VALOR, IF, SO, ELIF, ELSE, IFCLOSE, SWITCH, DO, SWITCHCLOSE;
 terminal String FOR, UNTIL, FORCLOSE, INCREMENT, WHILE, WHILECLOSE, REPEAT, UNTIL_CONDITION, RETURN;
-terminal String METOD, METODCLOSE, FUN, FUNCLOSE, PARAMETERS, EXECUTE, PRINT, PRINTLN, UMENOS;
+terminal String METOD, METODCLOSE, FUN, FUNCLOSE, PARAMETERS, EXECUTE, PRINT, PRINTLN;
 terminal String TRUE, FALSE, STRING_CONTENT, CHAR_CONTENT, MENORQUE, MAYORQUE, MENORIGUAL, MAYORIGUAL, ESIGUAL, NOESIGUAL, INVERSE;
 terminal String OPENCASE, CLOSECASE;
 
-non terminal init;
+non terminal ini;
 non terminal instrucciones;
 non terminal instruccion;
 non terminal printables;
@@ -35,50 +36,49 @@ non terminal elif_statements;
 non terminal else_statements;
 non terminal bool_test;
 non terminal s_cases;
-non terminal incpp;
 non terminal args;
+non terminal pars;
 non terminal D_Tipo;
 non terminal Double math;
 
-precedence left MAS,MENOS, POTENCIA, MODULO;
-precedence left POR,DIVIDIDO;
-precedence left MENORQUE, MAYORQUE;
-precedence right UMENOS; 
+precedence left SUMA, RESTA, POTENCIA, MODULO;
+precedence left MULT,DIVD;
+precedence left MENORQUE, MAYORQUE, MENORQUE, MAYORQUE, MENORIGUAL, MAYORIGUAL, ESIGUAL, NOESIGUAL, PARENCIERRA, CLOSECASE, CORCCIERRA, error;
+precedence left FIN, IFCLOSE, SWITCHCLOSE, FORCLOSE, WHILECLOSE, METODCLOSE, FUNCLOSE;
+precedence left PUNTOCOMA;
+precedence right UMENOS, INICIO, INGRESAR, IF, SWITCH, FOR, WHILE, REPEAT, METOD, FUN, EXECUTE, PRINT, PRINTLN, CON_VALOR, UNTIL; 
+precedence right PARENABRE, IDENTIFICADOR, OPENCASE, CORCABRE, COMA, RETURN, UNTIL_CONDITION;
 
-start with init;
+start with ini;
 
-init ::= INICIO instrucciones FIN
+ini ::= INICIO instrucciones FIN
 ;
 
 instrucciones ::=  instruccion instrucciones 
 | instruccion 
-| error instrucciones {}
+| error:s instrucciones {:syntax_error( (Symbol) s);:}
 ;
 
 instruccion ::= INGRESAR id COMO D_Tipo PUNTOCOMA
     | id ASSIGN assignables PUNTOCOMA
     | PRINTLN printables PUNTOCOMA
     | PRINT printables PUNTOCOMA
-    | IF logic SO instrucciones elif_statements else_statements IFCLOSE
+    | IF logic SO instrucciones elif_statements IFCLOSE
     | WHILE logic DO instrucciones WHILECLOSE
     | WHILE INVERSE logic DO  instrucciones WHILECLOSE
     | SWITCH IDENTIFICADOR DO s_cases else_statements SWITCHCLOSE 
-    | FOR IDENTIFICADOR ASSIGN math UNTIL logic incpp DO instrucciones FORCLOSE
-    | FOR IDENTIFICADOR ASSIGN logic UNTIL logic incpp DO instrucciones FORCLOSE
+    | FOR IDENTIFICADOR ASSIGN math UNTIL logic INCREMENT logic DO instrucciones FORCLOSE
+    | FOR IDENTIFICADOR ASSIGN logic UNTIL logic INCREMENT logic DO instrucciones FORCLOSE
     | REPEAT instrucciones UNTIL_CONDITION logic
     | METOD IDENTIFICADOR instrucciones METODCLOSE
     | FUN IDENTIFICADOR instrucciones RETURN logic PUNTOCOMA FUNCLOSE
-    | METOD IDENTIFICADOR PARAMETERS logic instrucciones METODCLOSE
-    | FUN IDENTIFICADOR PARAMETERS logic instrucciones RETURN logic PUNTOCOMA FUNCLOSE
-    | EXECUTE IDENTIFICADOR  PUNTOCOMA
-    | empty
+    | METOD IDENTIFICADOR PARAMETERS pars instrucciones METODCLOSE
+    | FUN IDENTIFICADOR PARAMETERS pars instrucciones RETURN logic PUNTOCOMA FUNCLOSE
+    | EXECUTE IDENTIFICADOR args PUNTOCOMA
 ;
 
-incpp ::= INCREMENT logic
-    | empty
-;
-
-pars ::= pars COMA pars
+pars ::=  PARENABRE pars PARENCIERRA
+    | pars COMA pars
     | only_type IDENTIFICADOR 
 ;
 
@@ -90,7 +90,6 @@ args ::= PARENABRE args PARENCIERRA
     | IDENTIFICADOR
     | TRUE
     | FALSE
-    | logic
 ;
 
 s_cases ::= OPENCASE math CLOSECASE SO instrucciones s_cases 
@@ -98,16 +97,16 @@ s_cases ::= OPENCASE math CLOSECASE SO instrucciones s_cases
     | OPENCASE CHAR_CONTENT CLOSECASE SO instrucciones s_cases 
     | OPENCASE IDENTIFICADOR CLOSECASE SO instrucciones s_cases 
     | OPENCASE bool_test CLOSECASE SO instrucciones s_cases 
-    | empty
+    | else_statements
 ;
 
-elif_statements ::= ELIF logic instrucciones elif_statements
-    | ELIF logic SO instrucciones elif_statements
-    | empty
+elif_statements ::= ELIF logic SO instrucciones elif_statements
+    | ELIF logic SO elif_statements
+    | else_statements
 ;
 
 else_statements ::= ELSE instrucciones
-    | empty
+    | ELSE
 ;
 
 printables ::= PARENABRE printables PARENCIERRA
@@ -118,8 +117,7 @@ printables ::= PARENABRE printables PARENCIERRA
     | id
 ;
 
-assignables ::= math
-    | logic
+assignables ::= logic
     | STRING_CONTENT
     | CHAR_CONTENT
     | bool_test
@@ -168,7 +166,7 @@ operators::= MENORQUE
 ;
 
 math  ::= 
-    MENOS math:a             {:RESULT=a*-1;:}%prec UMENOS     
+    RESTA math:a             {:RESULT=a*-1;:}%prec UMENOS     
  |  math:a SUMA   math:b     {:RESULT=a+b;:}
  |  math:a RESTA  math:b     {:RESULT=a-b;:}
  |  math:a MULT   math:b     {:RESULT=a*b;:}

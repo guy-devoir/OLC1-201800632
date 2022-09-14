@@ -1,6 +1,6 @@
 package analizadores;
 
-import java_cup.runtime.*;
+import java_cup.runtime.Symbol; 
 
 %%
 %class Lexico
@@ -20,19 +20,19 @@ D = [0-9]+
 DD = [0-9]+("."[ |0-9]+)?
 ASSIGN = ("-"[">"])|"="
 
+LineTerminator = \r|\n|\r\n
+WhiteSpace = {LineTerminator} | [ \r ,\t\f]+
+
 Comment = {TraditionalComment} | {EndOfLineComment} | {DocumentationComment}
 TraditionalComment   = "/*" [^*] ~"*/" | "/*" "*"+ "/"
-// Comment can be the last line of the file, without line terminator.
 EndOfLineComment     = "//" {InputCharacter}* {LineTerminator}?
 DocumentationComment = "/**" {CommentContent} "*"+ "/"
 CommentContent       = ( [^*] | \*+ [^/*] )*
 
-LineTerminator = \r|\n|\r\n
-WhiteSpace = {LineTerminator} | [ \r ,\t\f]+
-
 String_ =  ("\""{L}|{D}|{WhiteSpace}({L}|{D}|{WhiteSpace})"\"") | ("\'"{L}|{D}|{WhiteSpace}({L}|{D}|{WhiteSpace})"\'")
-Character = ("\""([a-zA-Z_]|[0-9]|{whitespace})"\"")|("\'"([a-zA-Z_]|[0-9]|{whitespace})"\'")|(("\""|"\'")"$""{"{D}"}"("\""|"\'"))
+Character = ("\""([a-zA-Z_]|[0-9]|{WhiteSpace})"\"")|("\'"([a-zA-Z_]|[0-9]|{WhiteSpace})"\'")|(("\""|"\'")"$""{"{D}"}"("\""|"\'"))
 
+var_name = "_"{L}({L}|{D})*"_"
 
 OpenCase = "¿"|"¡"
 CloseCase = "?"|"!"
@@ -41,7 +41,6 @@ CloseCase = "?"|"!"
 
 {WhiteSpace}   { /* ignore */ }
 
-"Evaluar" { return new Symbol(sym.REVALUAR,yyline,yychar,yytext());}
 {D} { return new Symbol(sym.NUMERO,yyline,yychar,yytext()); }
 {DD} { return new Symbol(sym.DECIMAL,yyline,yychar,yytext()); }
 {String_} { return new Symbol(sym.STRING_CONTENT,yyline,yychar,yytext()); }
@@ -52,8 +51,9 @@ CloseCase = "?"|"!"
 
 "Boolean" { return new Symbol(sym.BOOLEAN,yyline,yychar,yytext());}
 "Booleana" { return new Symbol(sym.BOOLEAN,yyline,yychar,yytext());}
-"verdadero"{ return new Symbol(sym.TRUE,yyline,yychar,yytext());}
+
 "falso" { return new Symbol(sym.FALSE,yyline,yychar,yytext());}
+"verdadero" { return new Symbol(sym.TRUE,yyline,yychar,yytext()); }
 "not" { return new Symbol(sym.INVERSE,yyline,yychar,yytext());}
 
 "Caracter" { return new Symbol(sym.CHAR,yyline,yychar,yytext());}
@@ -86,7 +86,7 @@ CloseCase = "?"|"!"
 
 {ASSIGN}   {return new Symbol(sym.ASSIGN,yyline,yychar,yytext());}
 
-{"_"{L}({L}|{D})*"_"} {return new Symbol(sym.IDENTIFICADOR,yyline,yychar,yytext());}
+{var_name} {return new Symbol(sym.IDENTIFICADOR,yyline,yychar,yytext());}
 "ingresar" { return new Symbol(sym.INGRESAR,yyline,yychar,yytext()); }
 "como" { return new Symbol(sym.COMO,yyline,yychar,yytext()); }
 "con_valor" { return new Symbol(sym.CON_VALOR,yyline,yychar,yytext()); }
@@ -99,7 +99,7 @@ CloseCase = "?"|"!"
 
 "segun" { return new Symbol(sym.SWITCH,yyline,yychar,yytext()); }
 {OpenCase} { return new Symbol(sym.OPENCASE,yyline,yychar,yytext()); }
-{CloseCase} { return new Symbol(sym.CLASECASE,yyline,yychar,yytext()); }
+{CloseCase} { return new Symbol(sym.CLOSECASE,yyline,yychar,yytext()); }
 "hacer" { return new Symbol(sym.DO,yyline,yychar,yytext()); }
 "fin_segun" { return new Symbol(sym.SWITCHCLOSE,yyline,yychar,yytext()); }
 
@@ -126,7 +126,7 @@ CloseCase = "?"|"!"
 "imprimir" { return new Symbol(sym.PRINT,yyline,yychar,yytext()); }
 "imprimir_nl" { return new Symbol(sym.PRINTLN,yyline,yychar,yytext()); }
 
-{whitespace} {}
+{WhiteSpace} {}
 \n {yychar=1;}
 {Comment}   { /* ignore */ }
 

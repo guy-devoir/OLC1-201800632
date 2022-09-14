@@ -4,9 +4,11 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/Luciano%20Xiquín/Documents/NetBeansProjects/Proyecto1_Compiladores1/src/proyecto1_compiladores1/Interface.java</file>
+            <file>file:/C:/Users/Luciano%20Xiquín/Documents/NetBeansProjects/Proyecto1_Compiladores1/src/analizadores/compiler.bat</file>
             <file>file:/C:/Users/Luciano%20Xiquín/Documents/NetBeansProjects/Proyecto1_Compiladores1/src/analizadores/Sintactico</file>
             <file>file:/C:/Users/Luciano%20Xiquín/Documents/NetBeansProjects/Proyecto1_Compiladores1/src/proyecto1_compiladores1/Proyecto1_Compiladores1.java</file>
             <file>file:/C:/Users/Luciano%20Xiquín/Documents/NetBeansProjects/Proyecto1_Compiladores1/src/analizadores/Lexico</file>
+            <file>file:/C:/Users/Luciano%20Xiquín/Documents/NetBeansProjects/Proyecto1_Compiladores1/src/JLex/Main.java</file>
         </group>
     </open-files>
 </project-private>
