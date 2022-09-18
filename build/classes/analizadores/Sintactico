@@ -7,7 +7,7 @@ parser code {:
     public LinkedList<String> tokens = new LinkedList<String>();
 
     public void syntax_error(Symbol s){
-        System.out.println("Error linea: " + s.left + "columna: " +s.right+"value:" + s.value);                   
+        System.out.println("Error linea: " + s.left + " columna: " +s.right+" Value:   " + s.value);                   
     }
     public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
         System.out.println("Error linea irrecuperable: " + s.left + "columna: " +s.right+"value:" + s.value);                
@@ -52,11 +52,12 @@ precedence right PARENABRE, IDENTIFICADOR, OPENCASE, CORCABRE, COMA, RETURN, UNT
 start with ini;
 
 ini ::= INICIO instrucciones FIN
+    | INICIO FIN
 ;
 
 instrucciones ::=  instruccion instrucciones 
 | instruccion 
-| error:s instrucciones {:syntax_error( (Symbol) s);:}
+| error instrucciones 
 ;
 
 instruccion ::= INGRESAR id COMO D_Tipo PUNTOCOMA
@@ -157,14 +158,6 @@ logic ::= PARENABRE logic:a PARENCIERRA {:RESULT=a;:}
     | math
 ;
 
-operators::= MENORQUE
-    | MAYORQUE 
-    | MENORIGUAL 
-    | MAYORIGUAL 
-    | ESIGUAL 
-    | NOESIGUAL
-;
-
 math  ::= 
     RESTA math:a             {:RESULT=a*-1;:}%prec UMENOS     
  |  math:a SUMA   math:b     {:RESULT=a+b;:}
@@ -176,4 +169,12 @@ math  ::=
  |  NUMERO:a                               {:RESULT=new Double(a);:}
  |  DECIMAL:a                              {:RESULT=new Double(a);:}
  |  PARENABRE math:a PARENCIERRA              {:RESULT=new Double(a);:}
+;
+
+operators::= MENORQUE
+    | MAYORQUE 
+    | MENORIGUAL 
+    | MAYORIGUAL 
+    | ESIGUAL 
+    | NOESIGUAL
 ;

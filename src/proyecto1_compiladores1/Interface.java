@@ -6,14 +6,21 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import javax.swing.JFileChooser;
+import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 
 /**
  * @author Luciano Xiquín
  */
 public class Interface extends javax.swing.JFrame {
 
+    private String path;
+
     public Interface() {
-        boolean s= true;
+        boolean s = true;
         initComponents();
     }
 
@@ -60,6 +67,11 @@ public class Interface extends javax.swing.JFrame {
         });
 
         jButton5.setText("Run");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("Errores: 0");
 
@@ -137,28 +149,43 @@ public class Interface extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         JFileChooser fc = new JFileChooser();
-        
+
         int selec = fc.showOpenDialog(this);
-        
+
         if (selec == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
-            try(FileReader fr = new FileReader(file)){
+
+            try (FileReader fr = new FileReader(file)) {
                 String cadena = "";
                 int valor = fr.read();
-                while (valor != -1){
+                while (valor != -1) {
                     cadena = cadena + (char) valor;
                     valor = fr.read();
                 }
                 this.jTextArea1.setText(cadena);
-            }catch(IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
+        this.jTextArea1.setText("");
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        String cadena = this.jTextArea1.getText();
+        InputStream stream = new ByteArrayInputStream(cadena.getBytes(Charset.forName("UTF-8")));
+
+        analizadores.Sintactico pars;
+        try {
+            pars = new analizadores.Sintactico(new analizadores.Lexico(stream));
+            pars.parse();
+        } catch (Exception ex) {
+            System.out.println("Error fatal en compilación de entrada.");
+            System.out.println("Causa: " + ex.getCause());
+        }
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
      * @param args the command line arguments

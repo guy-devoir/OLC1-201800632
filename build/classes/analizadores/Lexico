@@ -11,26 +11,20 @@ import java_cup.runtime.Symbol;
 %unicode
 %ignorecase
 %init{
-    yyline = 1;
-    yychar = 1;
+            yyline = 1;
+            yychar = 1;
 %init}
 
-L = [a-zA-Z_]+
+L = [a-zA-Z]+
 D = [0-9]+
 DD = [0-9]+("."[ |0-9]+)?
 ASSIGN = ("-"[">"])|"="
 
-LineTerminator = \r|\n|\r\n
-WhiteSpace = {LineTerminator} | [ \r ,\t\f]+
+LineJump = \n
+WhiteSpace = {LineJump} | [\t\f]+
 
-Comment = {TraditionalComment} | {EndOfLineComment} | {DocumentationComment}
-TraditionalComment   = "/*" [^*] ~"*/" | "/*" "*"+ "/"
-EndOfLineComment     = "//" {InputCharacter}* {LineTerminator}?
-DocumentationComment = "/**" {CommentContent} "*"+ "/"
-CommentContent       = ( [^*] | \*+ [^/*] )*
-
-String_ =  ("\""{L}|{D}|{WhiteSpace}({L}|{D}|{WhiteSpace})"\"") | ("\'"{L}|{D}|{WhiteSpace}({L}|{D}|{WhiteSpace})"\'")
-Character = ("\""([a-zA-Z_]|[0-9]|{WhiteSpace})"\"")|("\'"([a-zA-Z_]|[0-9]|{WhiteSpace})"\'")|(("\""|"\'")"$""{"{D}"}"("\""|"\'"))
+String_ =  {L}|{D}|{WhiteSpace}({L}|{D}|{WhiteSpace})*
+Character = [a-zA-Z]|[0-9]|"$""{"({D})+"}"
 
 var_name = "_"{L}({L}|{D})*"_"
 
@@ -39,14 +33,11 @@ CloseCase = "?"|"!"
 
 %%
 
-{WhiteSpace}   { /* ignore */ }
-
 {D} { return new Symbol(sym.NUMERO,yyline,yychar,yytext()); }
+{LineJump} { yychar=1; }
 {DD} { return new Symbol(sym.DECIMAL,yyline,yychar,yytext()); }
-{String_} { return new Symbol(sym.STRING_CONTENT,yyline,yychar,yytext()); }
-{Character} { return new Symbol(sym.CHAR_CONTENT,yyline,yychar,yytext()); }
 
-"Número" { return new Symbol(sym.INTVALUE,yyline,yychar,yytext());}
+"Numero" { return new Symbol(sym.INTVALUE,yyline,yychar,yytext());}
 "Cadena" { return new Symbol(sym.STRING,yyline,yychar,yytext());}
 
 "Boolean" { return new Symbol(sym.BOOLEAN,yyline,yychar,yytext());}
@@ -75,7 +66,7 @@ CloseCase = "?"|"!"
 "=>" { return new Symbol(sym.MAYORIGUAL,yyline,yychar,yytext()); }
 "Mayor_o_igual" { return new Symbol(sym.MAYORIGUAL,yyline,yychar,yytext()); }
 "es_igual" { return new Symbol(sym.ESIGUAL,yyline,yychar,yytext()); }
-"es_difeErente" { return new Symbol(sym.NOESIGUAL,yyline,yychar,yytext()); }
+"es_diferente" { return new Symbol(sym.NOESIGUAL,yyline,yychar,yytext()); }
 "," { return new Symbol(sym.COMA,yyline,yychar,yytext()); }
 ";" { return new Symbol(sym.PUNTOCOMA,yyline,yychar,yytext()); }
 "[" { return new Symbol(sym.CORCABRE,yyline,yychar,yytext()); }
@@ -125,10 +116,6 @@ CloseCase = "?"|"!"
 "ejecutar" { return new Symbol(sym.EXECUTE,yyline,yychar,yytext()); }
 "imprimir" { return new Symbol(sym.PRINT,yyline,yychar,yytext()); }
 "imprimir_nl" { return new Symbol(sym.PRINTLN,yyline,yychar,yytext()); }
-
-{WhiteSpace} {}
-\n {yychar=1;}
-{Comment}   { /* ignore */ }
 
 . { 
     System.out.println(yytext() + "Error Lexico en linea: " + yyline + " y columna: " + yychar);
