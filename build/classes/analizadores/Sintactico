@@ -57,7 +57,7 @@ ini ::= INICIO instrucciones FIN
 
 instrucciones ::=  instruccion instrucciones 
 | instruccion 
-| error instrucciones 
+| error instrucciones {:tokens.add("error");:}
 ;
 
 instruccion ::= INGRESAR id COMO D_Tipo PUNTOCOMA
