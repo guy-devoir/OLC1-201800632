@@ -23,7 +23,7 @@ parser code {:
     }
 :}
 
-terminal String CORCHETEABRE, CORCHETECIERRA, CONJUNTO, NUMERO, DECIMAL, STRING, CHAR;
+terminal String CORCHETEABRE, CORCHETECIERRA, CONJUNTO, NUMERO, DECIMAL, STRING;
 terminal String DOSPUNTOS, PUNTOYCOMA, ASIGNAR, RANGE, COMA, COMILLA, COMILLASIMPLE;
 terminal String CONCATENACION, DISYUNCION, ASTERISK, MASMAS, QUESTIONMARK, ASCII;
 terminal String LINEJUMP, SPCS, SPCOMILLA, PERCENT;
@@ -51,7 +51,7 @@ instrucciones ::=  instruccion instrucciones
 | error instrucciones {:tokens.add("error");:}
 ;
 
-instruccion ::= CONJUNTO DOSPUNTOS CHAR:a ASIGNAR set_non_terminals:b RANGE set_non_terminals:c PUNTOYCOMA {:conjuntos_list.add(new setClass(a,b,c));:}
+instruccion ::= CONJUNTO DOSPUNTOS STRING:a ASIGNAR set_non_terminals:b RANGE set_non_terminals:c PUNTOYCOMA {:conjuntos_list.add(new setClass(a,b,c));:}
 | STRING:a ASIGNAR exp_reg:b {:expresions_list.add(new regClass(a, b));:} 
 | STRING:a DOSPUNTOS test_exp:b PUNTOYCOMA {:evaluation_list.add(new evaluateClass(a, b));:} 
 | PERCENT
@@ -59,7 +59,7 @@ instruccion ::= CONJUNTO DOSPUNTOS CHAR:a ASIGNAR set_non_terminals:b RANGE set_
 
 set_non_terminals ::= ASCII:a {:RESULT=a;:}
 | NUMERO:a {:RESULT=a;:}
-| CHAR:a {:RESULT=a;:}
+| STRING:a {:RESULT=a;:}
 | ASTERISK:a {:RESULT=a;:}
 | MASMAS:a {:RESULT=a;:}
 | QUESTIONMARK:a {:RESULT=a;:}
@@ -75,7 +75,6 @@ set_non_terminals ::= ASCII:a {:RESULT=a;:}
 
 test_exp ::= COMILLA STRING:a COMILLA {:RESULT=a;:}
 | COMILLA ASCII:a COMILLA {:RESULT=a;:}
-| COMILLA CHAR:a COMILLA {:RESULT=a;:}
 | COMILLA LINEJUMP:a COMILLA {:RESULT=a;:}
 | COMILLA SPCS:a COMILLA {:RESULT=a;:}
 | COMILLA SPCOMILLA:a COMILLA {:RESULT=a;:}
@@ -112,7 +111,6 @@ str_reg ::= CORCHETEABRE STRING:a CORCHETECIERRA {:RESULT="{"+a+"}";:}
 | COMILLA LINEJUMP:a COMILLA {:RESULT=a;:}
 | COMILLA SPCS:a COMILLA {:RESULT=a;:}
 | COMILLA SPCOMILLA:a COMILLA {:RESULT=a;:}
-| COMILLA CHAR:a COMILLA {:RESULT=a;:}
 | COMILLA ASCII:a COMILLA {:RESULT=a;:}
 | COMILLA ASTERISK:a COMILLA {:RESULT=a;:}
 | COMILLA MASMAS:a COMILLA {:RESULT=a;:}

@@ -8,31 +8,30 @@ package analizadores;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int PERCENT = 25;
-  public static final int ASTERISK = 18;
-  public static final int PUNTOYCOMA = 10;
-  public static final int CONCATENACION = 16;
-  public static final int DOSPUNTOS = 9;
-  public static final int RANGE = 12;
+  public static final int PERCENT = 24;
+  public static final int ASTERISK = 17;
+  public static final int PUNTOYCOMA = 9;
+  public static final int CONCATENACION = 15;
+  public static final int DOSPUNTOS = 8;
+  public static final int RANGE = 11;
   public static final int CONJUNTO = 4;
-  public static final int CHAR = 8;
   public static final int DECIMAL = 6;
-  public static final int LINEJUMP = 22;
-  public static final int QUESTIONMARK = 20;
-  public static final int ASIGNAR = 11;
+  public static final int LINEJUMP = 21;
+  public static final int QUESTIONMARK = 19;
+  public static final int ASIGNAR = 10;
   public static final int STRING = 7;
-  public static final int COMA = 13;
-  public static final int SPCOMILLA = 24;
-  public static final int COMILLASIMPLE = 15;
+  public static final int COMA = 12;
+  public static final int SPCOMILLA = 23;
+  public static final int COMILLASIMPLE = 14;
   public static final int EOF = 0;
-  public static final int SPCS = 23;
-  public static final int COMILLA = 14;
-  public static final int DISYUNCION = 17;
-  public static final int MASMAS = 19;
+  public static final int SPCS = 22;
+  public static final int COMILLA = 13;
+  public static final int DISYUNCION = 16;
+  public static final int MASMAS = 18;
   public static final int error = 1;
   public static final int NUMERO = 5;
   public static final int CORCHETEABRE = 2;
-  public static final int ASCII = 21;
+  public static final int ASCII = 20;
   public static final int CORCHETECIERRA = 3;
   public static final String[] terminalNames = new String[] {
   "EOF",
@@ -43,7 +42,6 @@ public class sym {
   "NUMERO",
   "DECIMAL",
   "STRING",
-  "CHAR",
   "DOSPUNTOS",
   "PUNTOYCOMA",
   "ASIGNAR",

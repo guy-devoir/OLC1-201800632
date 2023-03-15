@@ -20,8 +20,7 @@ InputCharacter = [^\r\n]+
 WhiteSpace = {LineTerminator} | [ \r ,\t\f]+
 D = [0-9]+
 DD = [0-9]+("."[ |0-9]+)?
-Character = [a-zA-Z]|[0-9]
-L = [a-zA-Z]+
+L = ([a-zA-Z]||0-9])+
 LineJump = \n
 Backslash = \
 
@@ -33,7 +32,6 @@ Backslash = \
 {LineJump} { yychar=1; }
 {DD} { return new Symbol(sym.DECIMAL,yyline,yychar,yytext()); }
 {L} { return new Symbol(sym.STRING,yyline,yychar,yytext()); }
-{Character} { return new Symbol(sym.CHAR,yyline,yychar,yytext()); }
 
 "CONJ" { return new Symbol(sym.CONJUNTO,yyline,yychar,yytext());}
 ":" { return new Symbol(sym.DOSPUNTOS,yyline,yychar,yytext()); }
